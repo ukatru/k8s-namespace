@@ -1,0 +1,145 @@
+{{- range $appId, $appConfig := .Values.values.apps }}
+{{- range $env, $envConfig := $appConfig.envConfigs }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: developer-role
+  namespace: {{ include "namespace.generateName" (list $appConfig $env) }}
+  annotations:
+    "helm.sh/hook-weight": "10"
+  labels:
+    app: {{ $appConfig.snowAppName }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/component: cluster-access
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/part-of: {{ $appConfig.snowAppId }}
+    platform.k8s.ukatru.cloud/env: {{ $env }}
+rules:
+  # Base developer permissions
+  - apiGroups: [""]
+    resources: ["configmaps", "services", "pods", "pods/logs", "events", "serviceaccounts"]
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    verbs: ["patch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods"]
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["authorization.k8s.io"]
+    resources: ["selfsubjectaccessreviews"]
+    verbs: ["create"]
+  - apiGroups: ["keda.sh"]
+    resources: ["scaledobjects"]
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["argoproj.io"]
+    resources: ["rollouts", "experiments", "analysisruns", "rollouts/status"]
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["argoproj.io"]
+    resources: ["rollouts"]
+    verbs: ["update", "patch"]
+  - apiGroups: ["gloo.solo.io"]
+    resources: ["upstreams"]
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["gateway.solo.io"]
+    resources: ["virtualservices"]
+    verbs: ["list", "get", "watch"]
+  
+  {{- if ne $env "prod" }}
+  # Non-prod additional permissions
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["keda.sh"]
+    resources: ["scaledobjects"]
+    verbs: ["update", "patch"]
+  {{- end }}
+  
+  {{- if eq $env "sandbox" }}
+  # Sandbox additional permissions
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["delete"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["delete"]
+  - apiGroups: [""]
+    resources: ["pods", "secrets", "configmaps", "services", "serviceaccounts"]
+    verbs: ["delete"]
+  - apiGroups: ["keda.sh"]
+    resources: ["scaledobjects"]
+    verbs: ["delete"]
+  - apiGroups: ["datadoghq.com"]
+    resources: ["datadogmonitors"]
+    verbs: ["delete"]
+  - apiGroups: ["argoproj.io"]
+    resources: ["rollouts"]
+    verbs: ["delete"]
+  - apiGroups: ["gloo.solo.io"]
+    resources: ["upstreams"]
+    verbs: ["delete"]
+  - apiGroups: ["gateway.solo.io"]
+    resources: ["virtualservices"]
+    verbs: ["delete"]
+  {{- end }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: developer-role-binding
+  namespace: {{ include "namespace.generateName" (list $appConfig $env) }}
+  annotations:
+    "helm.sh/hook-weight": "15"
+  labels:
+    app: {{ $appConfig.snowAppName }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/component: cluster-access
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/part-of: {{ $appConfig.snowAppId }}
+    platform.k8s.ukatru.cloud/env: {{ $env }}
+subjects:
+- kind: Group
+  name: oidc:k8s-platform-{{ $appConfig.snowAppId }}-developer
+  namespace: {{ include "namespace.generateName" (list $appConfig $env) }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: developer-role
+{{- end }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ lower $appConfig.snowAppId }}-developer-cluster-role-binding
+  labels:
+    app: {{ $appConfig.snowAppName }}
+    app.kubernetes.io/name: {{ lower $appConfig.snowAppId }}-developer-cluster-role-binding
+    app.kubernetes.io/component: cluster-access
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/part-of: {{ $appConfig.snowAppId }}
+subjects:
+- kind: Group
+  name: oidc:k8s-platform-{{ $appConfig.snowAppId }}-developer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: developer-cluster-role
+{{- end }}

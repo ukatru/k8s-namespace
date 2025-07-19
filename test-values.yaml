@@ -1,0 +1,10 @@
+# Test values for namespace chart
+appEnv: "test"
+
+app:
+  snowAppName: "test-application"
+  snowAppId: "TEST456"
+  gitlabProjIds:
+    - "12345"
+    - "67890"
+    - "54321"

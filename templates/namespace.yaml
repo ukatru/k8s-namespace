@@ -1,0 +1,31 @@
+{{- range $appId, $appConfig := .Values.values.apps }}
+{{- range $env, $envConfig := $appConfig.envConfigs }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "namespace.generateName" (list $appConfig $env) }}
+  annotations:
+    "helm.sh/hook-weight": "-10"
+  labels:
+    app: {{ $appConfig.snowAppName }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/component: namespace
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/part-of: {{ $appConfig.snowAppId }}
+    platform.k8s.ukatru.cloud/env: {{ $env }}
+    {{- if $appConfig.datadogTeam }}
+    datadog.team: {{ $appConfig.datadogTeam }}
+    {{- end }}
+    {{- if $envConfig.labels }}
+    {{- toYaml $envConfig.labels | nindent 4 }}
+    {{- end }}
+  annotations:
+    platform.eks.ukatru.cloud/gitlab-project-ids: {{ join "," $appConfig.gitlabProjIds }}
+    {{- if $envConfig.annotations }}
+    {{- toYaml $envConfig.annotations | nindent 4 }}
+    {{- end }}
+{{- end }}
+{{- end }}

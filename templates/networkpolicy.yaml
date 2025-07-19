@@ -1,0 +1,50 @@
+{{- range $appId, $appConfig := .Values.values.apps }}
+{{- range $env, $envConfig := $appConfig.envConfigs }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-namespace-network-policy
+  namespace: {{ include "namespace.generateName" (list $appConfig $env) }}
+  annotations:
+    "helm.sh/hook-weight": "0"
+    platform.k8s.ukatru.cloud: |
+      1. Ensure that all pods within the same namespace can communicate with each other freely
+      2. Ensure the ELB can route traffic to the pod
+      3. Ensure kube-system and datadog can reach the pods
+  labels:
+    app: {{ $appConfig.snowAppName }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/part-of: {{ $appConfig.snowAppId }}
+    platform.k8s.ukatru.cloud/env: {{ $env }}
+
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow traffic from pods in the same namespace
+    - from:
+        - podSelector: {}
+    # Allow traffic from specific namespaces
+    - from:
+        {{- $allowedNamespaces := (list "gloo-system" "datadog") }}
+        {{- range $ns := $allowedNamespaces }}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ $ns }}
+        {{- end }}
+    # Allow traffic from external subnets
+    {{- if $.Values.values.externalSubnetCidrs }}
+    - from:
+        {{- range $cidr := $.Values.values.externalSubnetCidrs }}
+        - ipBlock:
+            cidr: {{ $cidr }}
+        {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}

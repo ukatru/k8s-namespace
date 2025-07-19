@@ -1,0 +1,35 @@
+# Default values for namespace
+# This is a YAML-formatted file.
+
+values:
+  apps:
+    APM0002345:
+      snowAppName: "team-a"
+      snowAppId: "APM0002345"
+      gitlabProjIds: [12345678]
+      datadogTeam: "team-a"
+      envConfigs:
+        sandbox:
+          # Optional: Resource quotas for the namespace
+          # resourceQuotas:
+          #   cpu: 100     # CPU quota in cores
+          #   memory: 16   # Memory quota in Gi
+          #
+          # Optional: Limit ranges for containers in the namespace
+          # limitRanges:
+          #   max:              # Maximum allowed resource usage
+          #     cpu: 100        # CPU in millicores (m)
+          #     memory: 16      # Memory in Gi
+          #   min:              # Minimum allowed resource usage
+          #     cpu: 100        # CPU in millicores (m)
+          #     memory: 0.01    # Memory in Gi
+          #   default:          # Default limits if not specified
+          #     cpu: 100        # CPU in millicores (m)
+          #     memory: 16      # Memory in Gi
+          #   defaultrequest:   # Default requests if not specified
+          #     cpu: 100        # CPU in millicores (m)
+          #     memory: 2       # Memory in Gi
+        dev: {}
+        prod: {}
+  externalSubnetCidrs:
+    - 192.168.2.0/24

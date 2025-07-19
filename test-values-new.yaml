@@ -1,0 +1,58 @@
+values:
+  apps:
+    APM0002345:
+      snowAppName: "team-a"
+      snowAppId: "APM0002345"
+      gitlabProjIds: ["12345678"]
+      datadogTeam: "team-a"
+      envConfigs:
+        sandbox:
+          labels:
+            environment-type: "sandbox"
+            team-access: "restricted"
+          resourceQuotas:
+            cpu: 100
+            memory: 16
+          limitRanges:
+            max:
+              cpu: 100
+              memory: 16
+            min:
+              cpu: 100
+              memory: 0.01
+            default:
+              cpu: 100
+              memory: 16
+            defaultrequest:
+              cpu: 100
+              memory: 2
+        dev:
+          labels:
+            environment-type: "development"
+            team-access: "full"
+          annotations:
+            description: "Development environment for Team A"
+          resourceQuotas:
+            cpu: 200
+            memory: 32
+        prod:
+          labels:
+            environment-type: "production"
+            team-access: "restricted"
+          annotations:
+            description: "Production environment for Team A"
+            contact: "team-a@example.com"
+          resourceQuotas:
+            cpu: 500
+            memory: 64
+    APM0003456:
+      snowAppName: "team-b"
+      snowAppId: "APM0003456"
+      gitlabProjIds: ["87654321", "23456789"]
+      datadogTeam: "team-b"
+      envConfigs:
+        dev: {}
+        prod: {}
+  externalSubnetCidrs:
+    - 192.168.2.0/24
+    - 10.0.0.0/16

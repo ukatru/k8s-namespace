@@ -1,0 +1,29 @@
+{{- range $appId, $appConfig := .Values.values.apps }}
+{{- range $env, $envConfig := $appConfig.envConfigs }}
+{{- if $envConfig.resourceQuotas }}
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: resource-quota
+  namespace: {{ include "namespace.generateName" (list $appConfig $env) }}
+  annotations:
+    "helm.sh/hook-weight": "5"
+  labels:
+    app: {{ $appConfig.snowAppName }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env) }}
+    app.kubernetes.io/component: resource-quota
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/part-of: {{ $appConfig.snowAppId }}
+    platform.k8s.ukatru.cloud/env: {{ $env }}
+spec:
+  hard:
+    requests.cpu: "{{ $envConfig.resourceQuotas.cpu }}"
+    requests.memory: "{{ $envConfig.resourceQuotas.memory }}Gi"
+    limits.cpu: "{{ $envConfig.resourceQuotas.cpu }}"
+    limits.memory: "{{ $envConfig.resourceQuotas.memory }}Gi"
+{{- end }}
+{{- end }}
+{{- end }}

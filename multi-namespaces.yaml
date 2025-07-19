@@ -1,0 +1,46 @@
+# Multiple namespaces configuration
+namespaces:
+  - name: "app1-dev"  # Optional: will be generated from snowAppId-appEnv if not provided
+    appEnv: "dev"
+    app:
+      snowAppName: "application-one"
+      snowAppId: "APP001"
+      gitlabProjIds:
+        - "12345"
+        - "67890"
+    labels:
+      custom-label: "value1"
+      team: "team-a"
+    annotations:
+      custom-annotation: "note1"
+      
+  - appEnv: "test"  # Name will be generated as app002-test
+    app:
+      snowAppName: "application-two"
+      snowAppId: "APP002"
+      gitlabProjIds:
+        - "54321"
+    labels:
+      environment: "testing"
+      
+  - name: "arc-systems"  # Explicitly named namespace
+    appEnv: "prod"
+    app:
+      snowAppName: "arc-system"
+      snowAppId: "ARC001"
+      gitlabProjIds:
+        - "11111"
+        - "22222"
+    annotations:
+      description: "System namespace for Arc runners"
+      
+  - name: "arc-runners"
+    appEnv: "prod"
+    app:
+      snowAppName: "arc-runners"
+      snowAppId: "ARC002"
+      gitlabProjIds:
+        - "33333"
+    labels:
+      purpose: "ci-runners"
+      protected: "true"
