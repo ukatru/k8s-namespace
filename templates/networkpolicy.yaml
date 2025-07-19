@@ -11,7 +11,7 @@ metadata:
     platform.k8s.ukatru.cloud: |
       1. Ensure that all pods within the same namespace can communicate with each other freely
       2. Ensure the ELB can route traffic to the pod
-      3. Ensure kube-system and datadog can reach the pods
+      3. Ensure kube-system and grafana can reach the pods
   labels:
     app: {{ $appConfig.snowAppName }}
     platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env) }}
@@ -32,7 +32,7 @@ spec:
         - podSelector: {}
     # Allow traffic from specific namespaces
     - from:
-        {{- $allowedNamespaces := (list "gloo-system" "datadog") }}
+        {{- $allowedNamespaces := (list "grafana") }}
         {{- range $ns := $allowedNamespaces }}
         - namespaceSelector:
             matchLabels:
