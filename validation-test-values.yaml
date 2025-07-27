@@ -1,0 +1,37 @@
+appName: data-platform-poc
+snowApmId: APM121000
+gitlabProjIds:
+- 123455
+- 454354
+environments:
+  sbox:
+    labels:
+      environment-type: sandbox
+      cost-center: dev-ops
+    annotations:
+      platform.eks.ukatru.cloud/description: "Sandbox environment for testing"
+    resourceQuota:
+      hard:
+        limits.cpu: "200"  # Exceeds max of 50
+        limits.memory: 500Gi  # Exceeds max of 100Gi
+        requests.cpu: "150"  # Exceeds max of 50
+        requests.memory: 300Gi  # Exceeds max of 100Gi
+        pods: "200"  # Exceeds max of 100
+  dev:
+    limitRange:
+      limits:
+      - type: Container
+        default:
+          cpu: 10  # Exceeds max default
+          memory: 20Gi  # Exceeds max default
+        defaultRequest:
+          cpu: 5  # Exceeds max default request
+          memory: 10Gi  # Exceeds max default request
+        max:
+          cpu: 20  # Exceeds max of 8
+          memory: 40Gi  # Exceeds max of 16Gi
+        min:
+          cpu: 10m  # Below min of 50m
+          memory: 5Mi  # Below min of 10Mi
+  test: {}
+  prod: {}

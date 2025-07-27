@@ -1,31 +1,26 @@
-{{- range $appId, $appConfig := .Values }}
-{{- range $env, $envConfig := $appConfig.envConfigs }}
+{{- range $env, $envConfig := .Values.environments }}
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+  name: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
   annotations:
     "helm.sh/hook-weight": "-10"
-  labels:
-    app: {{ $appConfig.snowAppName }}
-    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/component: namespace
-    app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/part-of: {{ $appId }}
-    platform.k8s.ukatru.cloud/env: {{ $env }}
-    {{- if $appConfig.datadogTeam }}
-    datadog.team: {{ $appConfig.datadogTeam }}
-    {{- end }}
-    {{- if $envConfig.labels }}
-    {{- toYaml $envConfig.labels | nindent 4 }}
-    {{- end }}
-  annotations:
-    platform.eks.ukatru.cloud/gitlab-project-ids: {{ join "," $appConfig.gitlabProjIds }}
+    platform.eks.ukatru.cloud/gitlab-project-ids: {{ join "," $.Values.gitlabProjIds }}
     {{- if $envConfig.annotations }}
     {{- toYaml $envConfig.annotations | nindent 4 }}
     {{- end }}
-{{- end }}
+  labels:
+    app: {{ $.Values.appName }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/component: namespace
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/part-of: {{ $.Values.snowApmId }}
+    platform.k8s.ukatru.cloud/env: {{ $env }}
+
+    {{- if $envConfig.labels }}
+    {{- toYaml $envConfig.labels | nindent 4 }}
+    {{- end }}
 {{- end }}

@@ -1,38 +1,21 @@
-{{- range $appId, $appConfig := .Values }}
-{{- range $env, $envConfig := $appConfig.envConfigs }}
-{{- if $envConfig.limitRanges }}
+{{- range $env, $envConfig := .Values.environments }}
 ---
 apiVersion: v1
 kind: LimitRange
 metadata:
   name: limit-range
-  namespace: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+  namespace: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
   annotations:
     "helm.sh/hook-weight": "5"
   labels:
-    app: {{ $appConfig.snowAppName }}
-    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+    app: {{ $.Values.appName }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
     app.kubernetes.io/component: limit-range
     app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/part-of: {{ $appId }}
+    app.kubernetes.io/part-of: {{ $.Values.snowApmId }}
     platform.k8s.ukatru.cloud/env: {{ $env }}
 spec:
-  limits:
-    - type: Container
-      default:
-        cpu: "{{ $envConfig.limitRanges.default.cpu }}m"
-        memory: "{{ $envConfig.limitRanges.default.memory }}Gi"
-      defaultRequest:
-        cpu: "{{ $envConfig.limitRanges.defaultrequest.cpu }}m"
-        memory: "{{ $envConfig.limitRanges.defaultrequest.memory }}Gi"
-      max:
-        cpu: "{{ $envConfig.limitRanges.max.cpu }}m"
-        memory: "{{ $envConfig.limitRanges.max.memory }}Gi"
-      min:
-        cpu: "{{ $envConfig.limitRanges.min.cpu }}m"
-        memory: "{{ $envConfig.limitRanges.min.memory }}Gi"
-{{- end }}
-{{- end }}
+  {{ include "validateLimitRange" $envConfig.limitRange | nindent 2 }}
 {{- end }}

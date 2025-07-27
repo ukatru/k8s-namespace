@@ -1,21 +1,20 @@
-{{- range $appId, $appConfig := .Values }}
-{{- range $env, $envConfig := $appConfig.envConfigs }}
+{{- range $env, $envConfig := .Values.environments }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: developer-role
-  namespace: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+  namespace: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
   annotations:
     "helm.sh/hook-weight": "10"
   labels:
-    app: {{ $appConfig.snowAppName }}
-    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+    app: {{ $.Values.appName }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
     app.kubernetes.io/component: cluster-access
     app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/part-of: {{ $appId }}
+    app.kubernetes.io/part-of: {{ $.Values.snowApmId }}
     platform.k8s.ukatru.cloud/env: {{ $env }}
 rules:
   # Base developer permissions
@@ -102,22 +101,22 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: developer-role-binding
-  namespace: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+  namespace: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
   annotations:
     "helm.sh/hook-weight": "15"
   labels:
-    app: {{ $appConfig.snowAppName }}
-    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+    app: {{ $.Values.appName }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
     app.kubernetes.io/component: cluster-access
     app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/part-of: {{ $appId }}
+    app.kubernetes.io/part-of: {{ $.Values.snowApmId }}
     platform.k8s.ukatru.cloud/env: {{ $env }}
 subjects:
 - kind: Group
-  name: oidc:k8s-platform-{{ $appId }}-developer
-  namespace: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+  name: oidc:k8s-platform-{{ $.Values.snowApmId }}-developer
+  namespace: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -128,18 +127,17 @@ roleRef:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ lower $appId }}-developer-cluster-role-binding
+  name: {{ lower $.Values.snowApmId }}-developer-cluster-role-binding
   labels:
-    app: {{ $appConfig.snowAppName }}
-    app.kubernetes.io/name: {{ lower $appId }}-developer-cluster-role-binding
+    app: {{ $.Values.appName }}
+    app.kubernetes.io/name: {{ lower $.Values.snowApmId }}-developer-cluster-role-binding
     app.kubernetes.io/component: cluster-access
     app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/part-of: {{ $appId }}
+    app.kubernetes.io/part-of: {{ $.Values.snowApmId }}
 subjects:
 - kind: Group
-  name: oidc:k8s-platform-{{ $appId }}-developer
+  name: oidc:k8s-platform-{{ $.Values.snowApmId }}-developer
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: developer-cluster-role
-{{- end }}

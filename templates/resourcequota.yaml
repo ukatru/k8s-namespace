@@ -1,29 +1,21 @@
-{{- range $appId, $appConfig := .Values }}
-{{- range $env, $envConfig := $appConfig.envConfigs }}
-{{- if $envConfig.resourceQuotas }}
+{{- range $env, $envConfig := .Values.environments }}
 ---
 apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: resource-quota
-  namespace: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+  namespace: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
   annotations:
     "helm.sh/hook-weight": "5"
   labels:
-    app: {{ $appConfig.snowAppName }}
-    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+    app: {{ $.Values.appName }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
     app.kubernetes.io/component: resource-quota
     app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/part-of: {{ $appId }}
+    app.kubernetes.io/part-of: {{ $.Values.snowApmId }}
     platform.k8s.ukatru.cloud/env: {{ $env }}
 spec:
-  hard:
-    requests.cpu: "{{ $envConfig.resourceQuotas.cpu }}"
-    requests.memory: "{{ $envConfig.resourceQuotas.memory }}Gi"
-    limits.cpu: "{{ $envConfig.resourceQuotas.cpu }}"
-    limits.memory: "{{ $envConfig.resourceQuotas.memory }}Gi"
-{{- end }}
-{{- end }}
+  {{ include "validateResourceQuota" $envConfig.resourceQuota | nindent 2 }}
 {{- end }}

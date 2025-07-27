@@ -1,0 +1,96 @@
+appName: data-platform-poc
+snowApmId: APM121000
+
+gitlabProjIds:
+- 123455
+- 454354
+environments:
+  sbox:
+    labels:
+      environment-type: sandbox
+      cost-center: dev-ops
+    annotations:
+      platform.eks.ukatru.cloud/description: "Sandbox environment for testing"
+    resourceQuota:
+      hard:
+        limits.cpu: "8"
+        limits.memory: 16Gi
+        requests.cpu: "4"
+        requests.memory: 8Gi
+        pods: "20"
+    limitRange:
+      limits:
+      - default:
+          cpu: 500m
+          memory: 512Mi
+        defaultRequest:
+          cpu: 100m
+          memory: 128Mi
+        type: Container
+  dev:
+    labels:
+      environment-type: development
+      cost-center: dev-ops
+    annotations:
+      platform.eks.ukatru.cloud/description: "Development environment"
+    resourceQuota:
+      hard:
+        limits.cpu: "16"
+        limits.memory: 32Gi
+        requests.cpu: "8"
+        requests.memory: 16Gi
+        pods: "30"
+    limitRange:
+      limits:
+      - default:
+          cpu: 500m
+          memory: 512Mi
+        defaultRequest:
+          cpu: 100m
+          memory: 128Mi
+        type: Container
+  test:
+    labels:
+      environment-type: test
+      cost-center: qa-team
+    annotations:
+      platform.eks.ukatru.cloud/description: "Test environment"
+    resourceQuota:
+      hard:
+        limits.cpu: "16"
+        limits.memory: 32Gi
+        requests.cpu: "8"
+        requests.memory: 16Gi
+        pods: "30"
+    limitRange:
+      limits:
+      - default:
+          cpu: 500m
+          memory: 512Mi
+        defaultRequest:
+          cpu: 100m
+          memory: 128Mi
+        type: Container
+  prod:
+    labels:
+      environment-type: production
+      cost-center: operations
+    annotations:
+      platform.eks.ukatru.cloud/description: "Production environment"
+      platform.eks.ukatru.cloud/pagerduty-id: "PD12345"
+    resourceQuota:
+      hard:
+        limits.cpu: "32"
+        limits.memory: 64Gi
+        requests.cpu: "16"
+        requests.memory: 32Gi
+        pods: "50"
+    limitRange:
+      limits:
+      - default:
+          cpu: 1
+          memory: 1Gi
+        defaultRequest:
+          cpu: 250m
+          memory: 256Mi
+        type: Container

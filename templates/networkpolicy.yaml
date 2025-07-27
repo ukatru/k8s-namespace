@@ -1,11 +1,10 @@
-{{- range $appId, $appConfig := .Values }}
-{{- range $env, $envConfig := $appConfig.envConfigs }}
+{{- range $env, $envConfig := .Values.environments }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-namespace-network-policy
-  namespace: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+  namespace: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
   annotations:
     "helm.sh/hook-weight": "0"
     platform.k8s.ukatru.cloud: |
@@ -13,13 +12,13 @@ metadata:
       2. Ensure the ELB can route traffic to the pod
       3. Ensure kube-system and grafana can reach the pods
   labels:
-    app: {{ $appConfig.snowAppName }}
-    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
-    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+    app: {{ $.Values.appName }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
     app.kubernetes.io/component: network-policy
     app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/part-of: {{ $appId }}
+    app.kubernetes.io/part-of: {{ $.Values.snowApmId }}
     platform.k8s.ukatru.cloud/env: {{ $env }}
 
 spec:
@@ -46,5 +45,4 @@ spec:
             cidr: {{ $cidr }}
         {{- end }}
     {{- end }}
-{{- end }}
 {{- end }}

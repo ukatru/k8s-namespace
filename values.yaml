@@ -1,35 +1,71 @@
 # Default values for namespace
 # This is a YAML-formatted file.
 
-values:
-  apps:
-    APM0002345:
-      snowAppName: "team-a"
-      snowAppId: "APM0002345"
-      gitlabProjIds: [12345678]
-      datadogTeam: "team-a"
-      envConfigs:
-        sandbox:
-          # Optional: Resource quotas for the namespace
-          # resourceQuotas:
-          #   cpu: 100     # CPU quota in cores
-          #   memory: 16   # Memory quota in Gi
-          #
-          # Optional: Limit ranges for containers in the namespace
-          # limitRanges:
-          #   max:              # Maximum allowed resource usage
-          #     cpu: 100        # CPU in millicores (m)
-          #     memory: 16      # Memory in Gi
-          #   min:              # Minimum allowed resource usage
-          #     cpu: 100        # CPU in millicores (m)
-          #     memory: 0.01    # Memory in Gi
-          #   default:          # Default limits if not specified
-          #     cpu: 100        # CPU in millicores (m)
-          #     memory: 16      # Memory in Gi
-          #   defaultrequest:   # Default requests if not specified
-          #     cpu: 100        # CPU in millicores (m)
-          #     memory: 2       # Memory in Gi
-        dev: {}
-        prod: {}
-  externalSubnetCidrs:
-    - 192.168.2.0/24
+# ==============================
+# MANDATORY FIELDS - MUST BE SET
+# ==============================
+
+# Application name - used for labeling resources
+appName: ""
+
+# Snow Application ID - used for namespace naming and labeling
+# Must follow the format APM followed by 8 digits (e.g., APM12345678)
+snowApmId: ""
+
+# GitLab Project IDs - used for annotations to link resources to GitLab projects
+gitlabProjIds: []
+
+# ==============================
+# OPTIONAL FIELDS - WITH DEFAULTS
+# ==============================
+
+# External subnet CIDRs - used for network policies (optional)
+# If not provided, only internal cluster communication will be allowed
+externalSubnetCidrs: []
+
+# ==============================
+# ENVIRONMENTS CONFIGURATION
+# ==============================
+# At least one environment must be defined
+# Empty environments will use default resource limits
+
+environments:
+  # Example environments - customize as needed
+  # Empty environments ({}) will use the default resource quotas and limit ranges
+  # See README.md for details on default values and validation rules
+  
+  # Example of a fully configured environment:
+  # sbox:
+  #   labels:
+  #     environment-type: sandbox
+  #     cost-center: dev-ops
+  #   annotations:
+  #     platform.eks.ukatru.cloud/description: "Sandbox environment for testing"
+  #   resourceQuota:
+  #     hard:
+  #       limits.cpu: "8"
+  #       limits.memory: 16Gi
+  #       requests.cpu: "4"
+  #       requests.memory: 8Gi
+  #       pods: "20"
+  #   limitRange:
+  #     limits:
+  #     - type: Container
+  #       default:
+  #         cpu: 50m
+  #         memory: 0.5Gi
+  #       defaultRequest:
+  #         cpu: 50m
+  #         memory: 0.5Gi
+  #       max:
+  #         cpu: 2
+  #         memory: 4Gi
+  #       min:
+  #         cpu: 50m
+  #         memory: 10Mi
+  
+  # Define your environments here
+  sbox: {}
+  dev: {}
+  test: {}
+  prod: {}
