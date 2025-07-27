@@ -1,4 +1,4 @@
-{{- range $appId, $appConfig := .Values.values.apps }}
+{{- range $appId, $appConfig := .Values }}
 {{- range $env, $envConfig := $appConfig.envConfigs }}
 {{- if $envConfig.resourceQuotas }}
 ---
@@ -6,17 +6,17 @@ apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: resource-quota
-  namespace: {{ include "namespace.generateName" (list $appConfig $env) }}
+  namespace: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
   annotations:
     "helm.sh/hook-weight": "5"
   labels:
     app: {{ $appConfig.snowAppName }}
-    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env) }}
-    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env) }}
-    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env) }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
     app.kubernetes.io/component: resource-quota
     app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/part-of: {{ $appConfig.snowAppId }}
+    app.kubernetes.io/part-of: {{ $appId }}
     platform.k8s.ukatru.cloud/env: {{ $env }}
 spec:
   hard:

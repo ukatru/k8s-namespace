@@ -1,11 +1,11 @@
-{{- range $appId, $appConfig := .Values.values.apps }}
+{{- range $appId, $appConfig := .Values }}
 {{- range $env, $envConfig := $appConfig.envConfigs }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-namespace-network-policy
-  namespace: {{ include "namespace.generateName" (list $appConfig $env) }}
+  namespace: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
   annotations:
     "helm.sh/hook-weight": "0"
     platform.k8s.ukatru.cloud: |
@@ -14,12 +14,12 @@ metadata:
       3. Ensure kube-system and grafana can reach the pods
   labels:
     app: {{ $appConfig.snowAppName }}
-    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env) }}
-    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env) }}
-    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env) }}
+    platform.eks.ukatru.com/snow-app-id: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+    app.kubernetes.io/name: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
+    app.kubernetes.io/instance: {{ include "namespace.generateName" (list $appConfig $env $appId) }}
     app.kubernetes.io/component: network-policy
     app.kubernetes.io/managed-by: helm
-    app.kubernetes.io/part-of: {{ $appConfig.snowAppId }}
+    app.kubernetes.io/part-of: {{ $appId }}
     platform.k8s.ukatru.cloud/env: {{ $env }}
 
 spec:
@@ -39,9 +39,9 @@ spec:
               kubernetes.io/metadata.name: {{ $ns }}
         {{- end }}
     # Allow traffic from external subnets
-    {{- if $.Values.values.externalSubnetCidrs }}
+    {{- if $.Values.externalSubnetCidrs }}
     - from:
-        {{- range $cidr := $.Values.values.externalSubnetCidrs }}
+        {{- range $cidr := $.Values.externalSubnetCidrs }}
         - ipBlock:
             cidr: {{ $cidr }}
         {{- end }}
