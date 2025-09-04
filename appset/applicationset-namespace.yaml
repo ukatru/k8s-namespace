@@ -37,7 +37,8 @@ spec:
         server: '{{.server}}'
         namespace: default
       syncPolicy:
-        automated: {}
+        automated:
+          prune: true
         syncOptions:
           - CreateNamespace=false
           - ApplyOutofSyncOnly=true
