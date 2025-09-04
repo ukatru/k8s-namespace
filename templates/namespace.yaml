@@ -6,7 +6,7 @@ kind: Namespace
 metadata:
   name: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
   annotations:
-    "helm.sh/hook": "pre-install,pre-upgrade"
+    #"helm.sh/hook": "pre-install,pre-upgrade"
     "helm.sh/hook-weight": "-10"
     platform.eks.ukatru.cloud/gitlab-project-ids: {{ join "," $.Values.gitlabProjIds }}
     {{- if $envConfig.annotations }}
