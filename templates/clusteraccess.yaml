@@ -7,6 +7,7 @@ metadata:
   name: developer-role
   namespace: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
   annotations:
+    "helm.sh/hook": "post-install,post-upgrade"
     "helm.sh/hook-weight": "10"
   labels:
     app: {{ $.Values.appName }}
@@ -104,6 +105,7 @@ metadata:
   name: developer-role-binding
   namespace: {{ include "namespace.generateName" (dict "env" $env "root" $) }}
   annotations:
+    "helm.sh/hook": "post-install,post-upgrade"
     "helm.sh/hook-weight": "15"
   labels:
     app: {{ $.Values.appName }}
@@ -130,6 +132,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: {{ lower $.Values.snowApmId }}-developer-cluster-role-binding
+  annotations:
+    "helm.sh/hook": "post-install,post-upgrade"
+    "helm.sh/hook-weight": "20"
   labels:
     app: {{ $.Values.appName }}
     app.kubernetes.io/name: {{ lower $.Values.snowApmId }}-developer-cluster-role-binding
