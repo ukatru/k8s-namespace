@@ -29,7 +29,7 @@ spec:
           path: .
           helm:
             valueFiles:
-            - $values/dpe/{{ .path.filename }}
+            - $values/{{.path }}/{{ .path.filename }}
         - repoURL: 'https://github.com/ukatru/values.git'
           targetRevision: HEAD
           ref: values
