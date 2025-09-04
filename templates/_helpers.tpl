@@ -251,3 +251,41 @@ limits:
     memory: 10Mi
     {{- end }}
 {{- end -}}
+
+{{/*
+Determine if an environment should be deployed based on clusterEnv setting
+*/}}
+{{- define "shouldDeployEnvironment" -}}
+{{- $env := .env -}}
+{{- $clusterEnv := .clusterEnv | default "all" -}}
+
+{{- if eq $clusterEnv "all" -}}
+  {{- true -}}
+{{- else if eq $clusterEnv "non-prod" -}}
+  {{- if ne $env "prod" -}}
+    {{- true -}}
+  {{- else -}}
+    {{- false -}}
+  {{- end -}}
+{{- else if eq $clusterEnv "prod" -}}
+  {{- if eq $env "prod" -}}
+    {{- true -}}
+  {{- else -}}
+    {{- false -}}
+  {{- end -}}
+{{- else if eq $clusterEnv "dev" -}}
+  {{- if or (eq $env "dev") (eq $env "sbox") -}}
+    {{- true -}}
+  {{- else -}}
+    {{- false -}}
+  {{- end -}}
+{{- else if eq $clusterEnv "test" -}}
+  {{- if eq $env "test" -}}
+    {{- true -}}
+  {{- else -}}
+    {{- false -}}
+  {{- end -}}
+{{- else -}}
+  {{- true -}}
+{{- end -}}
+{{- end -}}

@@ -1,5 +1,6 @@
 appName: data-platform-poc
 snowApmId: APM121000
+clusterEnv: "dev"
 gitlabProjIds:
 - 123455
 - 454354

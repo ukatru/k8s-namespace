@@ -148,9 +148,31 @@ helm install [RELEASE_NAME] ./k8s-namespace -f values.yaml
 helm template [RELEASE_NAME] ./k8s-namespace -f values.yaml
 ```
 
-## Environment-to-Cluster Mapping
+## Conditional Environment Deployment
 
-The chart is designed to handle environment-specific configurations within the values file. The mapping of environments to clusters should be handled outside the Helm chart, typically through ArgoCD or another GitOps tool.
+The chart supports conditional deployment of environments based on the cluster environment type using the `clusterEnv` parameter in the values file. This allows you to selectively deploy only certain environments based on the cluster you're deploying to.
+
+### clusterEnv Parameter
+
+The `clusterEnv` parameter can be set to one of the following values:
+
+- `all`: Deploy all environments (default)
+- `non-prod`: Deploy all environments except `prod`
+- `prod`: Deploy only the `prod` environment
+- `dev`: Deploy all environments except `prod`
+- `test`: Deploy only the `test` environment
+
+### Example Usage
+
+```bash
+# Deploy all environments except prod
+helm install namespace ./k8s-namespace --set clusterEnv=non-prod
+
+# Deploy only the prod environment
+helm install namespace ./k8s-namespace --set clusterEnv=prod
+```
+
+This feature is particularly useful in CI/CD pipelines where you want to skip deploying production namespaces to non-production clusters, or when you want to selectively deploy only certain environments.
 
 ## Namespace Naming Convention
 

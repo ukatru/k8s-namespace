@@ -1,0 +1,42 @@
+# Non-prod cluster values for namespace chart
+# This file configures the chart to deploy only non-prod environments
+
+# ==============================
+# MANDATORY FIELDS - MUST BE SET
+# ==============================
+
+# Application name - used for labeling resources
+# This is a placeholder - you must override this in your application-specific values
+appName: "${APP_NAME}"
+
+# Snow Application ID - used for namespace naming and labeling
+# Must follow the format APM followed by 8 digits (e.g., APM12345678)
+# This is a placeholder - you must override this in your application-specific values
+snowApmId: "${SNOW_APM_ID}"
+
+# GitLab Project IDs - used for annotations to link resources to GitLab projects
+gitlabProjIds: []
+
+# ==============================
+# OPTIONAL FIELDS - WITH DEFAULTS
+# ==============================
+
+# Cluster environment type - used to determine which environments to deploy
+# Set to "non-prod" to deploy only non-prod environments (sbox, dev, test)
+clusterEnv: "non-prod"
+
+# External subnet CIDRs - used for network policies (optional)
+# If not provided, only internal cluster communication will be allowed
+externalSubnetCidrs: []
+
+# ==============================
+# ENVIRONMENTS CONFIGURATION
+# ==============================
+# Only non-prod environments will be deployed due to clusterEnv setting
+
+environments:
+  # Define your environments here
+  sbox: {}
+  dev: {}
+  test: {}
+  prod: {} # This will be skipped due to clusterEnv: "non-prod"

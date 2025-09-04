@@ -1,4 +1,5 @@
 {{- range $env, $envConfig := .Values.environments }}
+{{- if eq (include "shouldDeployEnvironment" (dict "env" $env "clusterEnv" $.Values.clusterEnv)) "true" }}
 ---
 apiVersion: v1
 kind: LimitRange
@@ -18,4 +19,5 @@ metadata:
     platform.k8s.ukatru.cloud/env: {{ $env }}
 spec:
   {{ include "validateLimitRange" $envConfig.limitRange | nindent 2 }}
+{{- end }}
 {{- end }}

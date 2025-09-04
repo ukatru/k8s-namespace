@@ -19,6 +19,13 @@ gitlabProjIds: []
 # OPTIONAL FIELDS - WITH DEFAULTS
 # ==============================
 
+# Cluster environment type - used to determine which environments to deploy
+# Valid values: "all", "non-prod", "prod", "dev", "test"
+# If set to "non-prod" or "dev", the prod environment will be skipped
+# If set to "prod", only prod environment will be deployed
+# Default: "all" (deploy all environments)
+clusterEnv: "all"
+
 # External subnet CIDRs - used for network policies (optional)
 # If not provided, only internal cluster communication will be allowed
 externalSubnetCidrs: []
