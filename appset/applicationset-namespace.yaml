@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: applicationset-namespace
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          - git:
+              repoURL: https://github.com/ukatru/values.git
+              revision: HEAD
+              files:
+                - path: "**/*.yaml"
+          - clusters:
+              selector:
+                matchLabels:
+                  cluster_name: k8smpi001
+  template:
+    metadata:
+      name: namespace-{{ .name }}-{{ .path.filename }}
+    spec:
+      project: '{{.metadata.annotations.argocd_project_name}}'
+      sources:
+        - repoURL: https://github.com/ukatru/k8s-namespace.git
+          targetRevision: HEAD
+          path: .
+          helm:
+            valueFiles:
+            - $values/dpe/{{ .path.filename }}
+        - repoURL: 'https://github.com/ukatru/values.git'
+          targetRevision: HEAD
+          ref: values
+      destination:
+        server: '{{.server}}'
+        namespace: default
+      syncPolicy:
+        automated: {}
+        syncOptions:
+          - CreateNamespace=false
+          - ApplyOutofSyncOnly=true
