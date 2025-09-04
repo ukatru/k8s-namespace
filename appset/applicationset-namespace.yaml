@@ -20,7 +20,7 @@ spec:
                   cluster_name: k8smpi001
   template:
     metadata:
-      name: namespace-{{ .name }}-{{ .path.filename }}
+      name: ns-{{ .path.basename }}-{{ .path.filename }}-{{ .name }}
     spec:
       project: '{{.metadata.annotations.argocd_project_name}}'
       sources:
@@ -29,7 +29,7 @@ spec:
           path: .
           helm:
             valueFiles:
-            - $values/{{.path }}/{{ .path.filename }}
+            - $values/{{ .path.basename }}/{{ .path.filename }}
         - repoURL: 'https://github.com/ukatru/values.git'
           targetRevision: HEAD
           ref: values
