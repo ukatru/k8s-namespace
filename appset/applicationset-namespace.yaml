@@ -13,11 +13,11 @@ spec:
               repoURL: https://github.com/ukatru/values.git
               revision: HEAD
               files:
-                - path: "**/*.yaml"
+                - path: "*/*/*.yaml"
           - clusters:
               selector:
                 matchLabels:
-                  cluster_name: k8smpi001
+                  cluster_name: '{{regexReplaceAll "/.*$" .path.path ""}}'
   template:
     metadata:
       name: ns-{{ .path.basename }}-{{ .path.filename }}-{{ .name }}
@@ -29,7 +29,9 @@ spec:
           path: .
           helm:
             valueFiles:
-            - $values/{{ .path.basename }}/{{ .path.filename }}
+            - $values/{{ .path.path }}/{{ .path.filename }}
+            values: |
+              cluster_name: '{{regexReplaceAll "/.*$" .path.path ""}}'
         - repoURL: 'https://github.com/ukatru/values.git'
           targetRevision: HEAD
           ref: values
